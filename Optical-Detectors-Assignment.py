@@ -362,7 +362,7 @@ if __name__ == "__main__":
     # In your main function, before creating HR diagram:
 
     # Step 8: Create HR Diagram
-    color, magnitude = create_hr_diagram(final_catalog)
+    color, magnitude = create_hr_diagram(final_catalog, output_filename='hr_diagram.png')
 
 
 
