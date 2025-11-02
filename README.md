@@ -22,36 +22,11 @@ The pipeline generates:
 - `hr_diagram.png` - HR diagram plot
 
 
-## Functions
-
-### `median_combine_fits(directory, file_pattern='*.fits')`
-Median-combines FITS files to remove cosmic rays.
-
-### `find_stars(image, fwhm, threshold_sigma)`
-Detects stellar sources using DAOStarFinder algorithm.
-
-### `filter_sources(sources, image_shape, ...)`
-Applies quality checks to remove spurious detections.
-
-### `create_catalog(sources)`
-Creates clean catalog with object IDs and coordinates.
-
-### `save_catalog(catalog, filename)`
-Saves catalog to text file.
-
-### `match_catalogs(catalog1, catalog2, max_separation, ...)`
-Matches sources between two catalogs by proximity.
-
-### `perform_photometry(image, catalog, exptime, zp, ...)`
-Performs aperture photometry with local background subtraction.
-
-### `create_photometry_catalog(matched_catalog, phot_f336w, phot_f555w, ...)`
-Combines photometry from both filters into final catalog.
-
-### `create_hr_diagram(catalog, output_filename)`
-Creates and saves HR diagram plot.
-
 ## References
 
-- DAOStarFinder: Stetson (1987), PASP, 99, 191
-- WFPC2 Photometry: Holtzman et al. (1995), PASP, 107, 1065
+- Stetson, P. B. (1987). DAOPHOT: A Computer Program for Crowded-Field Stellar Photometry. PASP, 99, 191. https://doi.org/10.1086/131977
+- Holtzman, J. A., et al. (1995). The Photometric Performance and Calibration of WFPC2. PASP, 107, 1065. https://doi.org/10.1086/133664
+- DAOStarFinder documentation: https://photutils.readthedocs.io/en/stable/api/photutils.detection.DAOStarFinder.html
+- sigma_clipped_stats documentation: https://docs.astropy.org/en/stable/api/astropy.stats.sigma_clipped_stats.html
+
+
