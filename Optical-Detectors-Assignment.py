@@ -30,7 +30,6 @@ def median_combine_fits(directory, file_pattern='*.fits'):
 
             image_stack.append(data)
 
-
     # Convert list to numpy array
     image_stack = np.array(image_stack)
 
@@ -39,13 +38,11 @@ def median_combine_fits(directory, file_pattern='*.fits'):
 
     return combined_data, header
 
-
 def find_stars(image, fwhm, threshold_sigma):
     """
     Find stellar sources in an image using DAOStarFinder.
 
     """
-
     # Step 1: Estimate the background using sigma-clipped statistics
     # This removes bright stars from background calculation
     mean, median, std = sigma_clipped_stats(image)
@@ -58,7 +55,6 @@ def find_stars(image, fwhm, threshold_sigma):
     sources = daofind(image - median)  # Subtract median background
 
     return sources, mean, median, std
-
 
 def filter_sources(sources, image_shape, flux_min=0.0, ellipticity_max=0.5,
                    sharpness_min=0.2, sharpness_max=1, left_buffer=40, right_buffer=0, 
@@ -75,25 +71,20 @@ def filter_sources(sources, image_shape, flux_min=0.0, ellipticity_max=0.5,
     flux_check = sources['flux'] > flux_min
     mask &= flux_check
 
-
     # Check 2: Ellipticity/Roundness
     # DAOStarFinder provides 'roundness1' and 'roundness2' 
     # Both should be close to 0 for circular sources
-    # We'll check that both are within acceptable limits
     roundness1_check = np.abs(sources['roundness1']) <= ellipticity_max
     roundness2_check = np.abs(sources['roundness2']) <= ellipticity_max
     roundness_check = roundness1_check & roundness2_check
     mask &= roundness_check
-
 
     # Check 3: Sharpness (filters extended sources and cosmic rays)
     # Sharpness should be around 0.2-1.0 for stars
     sharpness_check = (sources['sharpness'] >= sharpness_min) & (sources['sharpness'] <= sharpness_max)
     mask &= sharpness_check
 
-
-    # Check 5: Edge masking - reject sources too close to edges
-    # Now with separate buffers for each edge
+    # Check 5: Edge masking: reject sources too close to edges
     height, width = image_shape
     x = sources['xcentroid']
     y = sources['ycentroid']
@@ -101,12 +92,8 @@ def filter_sources(sources, image_shape, flux_min=0.0, ellipticity_max=0.5,
                   (y > bottom_buffer) & (y < height - top_buffer))
     mask &= edge_check
 
-
     # Apply the combined mask
     filtered_sources = sources[mask]
-
-
-
 
     return filtered_sources
 
@@ -129,10 +116,7 @@ def create_catalog(sources):
     catalog['x_center'] = x_centers
     catalog['y_center'] = y_centers
 
-
-
     return catalog
-
 
 def save_catalog(catalog, filename):
     """
@@ -140,11 +124,8 @@ def save_catalog(catalog, filename):
 
     """
 
-
-
     # Save as space-delimited text file with header
     catalog.write(filename, format='ascii.fixed_width', overwrite=True)
-
 
 def match_catalogs(catalog1, catalog2, max_separation=2.5, 
                    filter1_name='F336W', filter2_name='F555W'):
@@ -152,9 +133,6 @@ def match_catalogs(catalog1, catalog2, max_separation=2.5,
     Match sources between two catalogs based on coordinate proximity.
 
     """
-
-
-
 
     # Extract coordinates
     x1 = np.array(catalog1['x_center'])
@@ -184,10 +162,6 @@ def match_catalogs(catalog1, catalog2, max_separation=2.5,
             matched_indices2.append(min_dist_idx)
             separations.append(min_dist)
 
-
-
-
-
     # Create matched catalog
     matched_catalog = Table()
     matched_catalog['Object_ID'] = np.arange(1, len(matched_indices1) + 1)
@@ -201,9 +175,6 @@ def match_catalogs(catalog1, catalog2, max_separation=2.5,
     matched_catalog['f2_id'] = catalog2['Object_ID'][matched_indices2]
     matched_catalog['separation'] = separations
 
-
-
-
     return matched_catalog
 
 def perform_photometry(image, catalog,exptime,zp=21.1, aperture_radius=4.5, 
@@ -211,9 +182,6 @@ def perform_photometry(image, catalog,exptime,zp=21.1, aperture_radius=4.5,
     """
     Perform aperture photometry on sources in a catalog.
     """
-
-
-
 
     # Create apertures at source positions
     positions = np.transpose(np.array([catalog['x_center'], catalog['y_center']]))
@@ -254,17 +222,13 @@ def perform_photometry(image, catalog,exptime,zp=21.1, aperture_radius=4.5,
     # Count valid magnitudes
     n_valid = np.sum(~np.isnan(mag))
 
-
     return phot_table
-
 
 def create_photometry_catalog(matched_catalog, phot_f336w, phot_f555w, 
                               aperture_radius=4.5):
     """
     Create final photometry catalog combining measurements from both filters.
     """
-
-
 
     # Create new table with matched catalog info
     final_catalog = Table()
@@ -281,8 +245,6 @@ def create_photometry_catalog(matched_catalog, phot_f336w, phot_f555w,
     valid_mask = ~np.isnan(final_catalog['mag_F336W']) & ~np.isnan(final_catalog['mag_F555W'])
     final_catalog = final_catalog[valid_mask]
 
-
-
     return final_catalog
 
 
@@ -292,15 +254,11 @@ def create_hr_diagram(catalog, output_filename=None):
 
     """
 
-
-
     # Calculate color (difference between filters)
     color = catalog['mag_F336W'] - catalog['mag_F555W']
 
     # Use F336W magnitude for brightness
     magnitude = catalog['mag_F336W']
-
-
 
     # Create the plot
     plt.figure(figsize=(10, 8))
@@ -327,7 +285,6 @@ def create_hr_diagram(catalog, output_filename=None):
     plt.show()
 
     return color, magnitude
-
 
 if __name__ == "__main__":
     # Step 1: Cosmic Ray Removal
@@ -359,7 +316,6 @@ if __name__ == "__main__":
     # Step 7: Create Final Photometry Catalog
     final_catalog = create_photometry_catalog(matched_catalog, phot_f336w, phot_f555w, aperture_radius=4.5)
     save_catalog(final_catalog, 'final_photometry_catalog.txt')
-    # In your main function, before creating HR diagram:
 
     # Step 8: Create HR Diagram
     color, magnitude = create_hr_diagram(final_catalog, output_filename='hr_diagram.png')
