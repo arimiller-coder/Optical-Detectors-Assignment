@@ -4,7 +4,6 @@ import glob
 import matplotlib.pyplot as plt
 from astropy.stats import sigma_clipped_stats
 from photutils.detection import DAOStarFinder
-from astropy.visualization import ZScaleInterval
 from astropy.table import Table
 from photutils.aperture import CircularAperture, CircularAnnulus, aperture_photometry
 def median_combine_fits(directory, file_pattern='*.fits'):
@@ -48,7 +47,6 @@ def find_stars(image, fwhm, threshold_sigma):
     mean, median, std = sigma_clipped_stats(image)
 
     # Step 2: Set up DAOStarFinder
-    # threshold = median + (threshold_sigma * std)
     daofind = DAOStarFinder(fwhm=fwhm, threshold=threshold_sigma * std)
 
     # Step 3: Find sources (DAOStarFinder automatically subtracts the background)
